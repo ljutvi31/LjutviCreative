@@ -1,6 +1,5 @@
-import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoadingScreen from './components/LoadingScreen';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -15,10 +14,11 @@ import ArtShare from './pages/ArtShare';
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const handleLoadingComplete = () => setIsLoading(false);
+
   if (isLoading) return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
 
   return (
-    <Router>
+    <BrowserRouter basename="/LjutviCreative">
       <Routes>
         <Route
           path="/"
@@ -36,8 +36,10 @@ function App() {
         />
         <Route path="/balkan-grill" element={<BalkanGrill />} />
         <Route path="/artshare" element={<ArtShare />} />
+        {/* filets de sécurité */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
