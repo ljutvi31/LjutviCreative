@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
 import LoadingScreen from './components/LoadingScreen';
 import Header from './components/Header';
@@ -14,29 +14,26 @@ import ArtShare from './pages/ArtShare';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-
-  const handleLoadingComplete = () => {
-    setIsLoading(false);
-  };
-
-  if (isLoading) {
-    return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
-  }
+  const handleLoadingComplete = () => setIsLoading(false);
+  if (isLoading) return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={
-          <div className="min-h-screen bg-gray-900 text-white overflow-x-hidden">
-            <Header />
-            <Hero />
-            <About />
-            <Services />
-            <Portfolio />
-            <Contact />
-            <Footer />
-          </div>
-        } />
+        <Route
+          path="/"
+          element={
+            <div className="min-h-screen bg-gray-900 text-white overflow-x-hidden">
+              <Header />
+              <Hero />
+              <About />
+              <Services />
+              <Portfolio />
+              <Contact />
+              <Footer />
+            </div>
+          }
+        />
         <Route path="/balkan-grill" element={<BalkanGrill />} />
         <Route path="/artshare" element={<ArtShare />} />
       </Routes>
