@@ -1,5 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* Remove @tailwind directives if not using Tailwind's build process */
 @import './styles/components.css';
