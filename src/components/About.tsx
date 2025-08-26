@@ -32,7 +32,7 @@ const About = () => {
               <p>
                 Aujourd'hui, j'allie cette expérience de vie riche à ma passion créative. 
                 <span className="text-blue-400 font-medium">Mon approche unique combine</span> 
-                l'art traditionnel sur tablette graphique (Procreate) et l'intelligence artificielle 
+                l'art traditionnel sur tablette graphique (Procreate) et l\'intelligence artificielle 
                 pour créer des identités visuelles authentiques et innovantes.
               </p>
             </div>
