@@ -1,4 +1,3 @@
-import React from 'react';
 import { User, Target, Award, Zap } from 'lucide-react';
 import '../styles/components.css';
 

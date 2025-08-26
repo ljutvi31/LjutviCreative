@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowLeft, MapPin, Clock, Phone, Star } from 'lucide-react';
 
 const BalkanGrill = () => {

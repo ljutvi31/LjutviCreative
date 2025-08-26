@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowDown, Sparkles } from 'lucide-react';
 import '../styles/components.css';
 

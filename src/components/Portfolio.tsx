@@ -1,4 +1,3 @@
-import React from 'react';
 import { ExternalLink, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import '../styles/components.css';

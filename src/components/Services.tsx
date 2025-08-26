@@ -1,4 +1,3 @@
-import React from 'react';
 import { Palette, Globe, ShoppingCart, Package, Star } from 'lucide-react';
 
 const Services = () => {
