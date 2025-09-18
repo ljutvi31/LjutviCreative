@@ -1,47 +1,85 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
-import emailjs from "@emailjs/browser";
+import emailjs from '@emailjs/browser';
+
+const SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID as string;
+const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string; // ton "Contact Us"
+const PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string;
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     service: '',
-    message: ''
+    message: '',
+    company: '' // honeypot caché anti-bot
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
 
-    emailjs.send(
-      import.meta.env.VITE_EMAILJS_SERVICE_ID!,
-      import.meta.env.VITE_EMAILJS_TEMPLATE_ID!,
-      {
-        name: formData.name,
-        email: formData.email,       // pour le Reply-To
-        title: formData.service,     // correspond à {{title}} dans ton template
-        message: formData.message,
-      },
-      import.meta.env.VITE_EMAILJS_PUBLIC_KEY!
-    )
-    .then(() => {
+    // anti-bot
+    if (formData.company.trim()) return;
+
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+      setError("Configuration EmailJS manquante (.env).");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // 1) Envoi vers TOI
+      await emailjs.send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        {
+          to_email: 'ljutviharry@gmail.com',   // <- destinataire = toi
+          name: formData.name,                 // From Name (affiché)
+          email: formData.email,               // Reply-To
+          title: formData.service,
+          message: formData.message,
+        },
+        { publicKey: PUBLIC_KEY }
+      );
+
+      // 2) Auto-reply vers le CLIENT (même template)
+      await emailjs.send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        {
+          to_email: formData.email,            // <- destinataire = client
+          name: 'Ljutvi Creative',             // From Name (tu peux personnaliser)
+          email: 'contact@no-reply.ljutvi',    // Reply-To (optionnel, peut rester formData.email)
+          title: 'Confirmation de réception',
+          message:
+            `Bonjour ${formData.name},\n\n` +
+            `Merci pour votre message ! J’ai bien reçu votre demande pour “${formData.service}”.\n` +
+            `Je reviens vers vous sous 24h pour discuter de votre projet.\n\n` +
+            `À très bientôt,\nLjutvi Creative`,
+        },
+        { publicKey: PUBLIC_KEY }
+      );
+
       setIsSubmitted(true);
+      setFormData({ name: '', email: '', service: '', message: '', company: '' });
       setTimeout(() => setIsSubmitted(false), 3000);
-    })
-    .catch((err) => {
-      console.error("Erreur EmailJS :", err);
-      alert("Une erreur est survenue, merci de réessayer.");
-    });
+    } catch (err: any) {
+      console.error('EmailJS ERROR:', err);
+      setError(err?.text || err?.message || 'L’envoi a échoué. Réessayez.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   return (
@@ -57,13 +95,13 @@ const Contact = () => {
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Contactez-moi pour discuter de votre projet. 
+            Contactez-moi pour discuter de votre projet.
             Première consultation gratuite pour définir vos besoins.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-          {/* Infos contact */}
+          {/* Infos */}
           <div className="space-y-8">
             <div>
               <h3 className="text-2xl font-bold mb-6 text-white">Informations de contact</h3>
@@ -77,7 +115,6 @@ const Contact = () => {
                     <div className="text-white font-medium">ljutviharry@gmail.com</div>
                   </div>
                 </div>
-
                 <div className="flex items-center space-x-4">
                   <div className="bg-blue-500/20 p-3 rounded-full">
                     <Phone className="text-blue-400" size={20} />
@@ -87,7 +124,6 @@ const Contact = () => {
                     <div className="text-white font-medium">06 14 33 79 76</div>
                   </div>
                 </div>
-
                 <div className="flex items-center space-x-4">
                   <div className="bg-green-500/20 p-3 rounded-full">
                     <MapPin className="text-green-400" size={20} />
@@ -126,20 +162,29 @@ const Contact = () => {
           {/* Formulaire */}
           <div className="bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-3xl p-8">
             <h3 className="text-2xl font-bold mb-6 text-white">Demander un devis</h3>
-            
+
             {isSubmitted ? (
               <div className="text-center py-8">
                 <CheckCircle className="text-green-400 mx-auto mb-4" size={48} />
                 <h4 className="text-xl font-bold text-white mb-2">Message envoyé !</h4>
-                <p className="text-gray-300">Je vous recontacte dans les 24h.</p>
+                <p className="text-gray-300">Un e-mail de confirmation vous a été envoyé.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Honeypot */}
+                <input
+                  type="text"
+                  name="company"
+                  value={formData.company}
+                  onChange={handleChange}
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Nom complet
-                    </label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Nom complet</label>
                     <input
                       type="text"
                       name="name"
@@ -151,9 +196,7 @@ const Contact = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Email
-                    </label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
                     <input
                       type="email"
                       name="email"
@@ -167,9 +210,7 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Service souhaité
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Service souhaité</label>
                   <select
                     name="service"
                     value={formData.service}
@@ -187,9 +228,7 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Décrivez votre projet
-                  </label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Décrivez votre projet</label>
                   <textarea
                     name="message"
                     value={formData.message}
@@ -198,14 +237,17 @@ const Contact = () => {
                     rows={5}
                     className="w-full bg-gray-700/50 border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-colors resize-none"
                     placeholder="Parlez-moi de votre projet, vos besoins, vos idées..."
-                  ></textarea>
+                  />
                 </div>
+
+                {error && <p className="text-sm text-red-400 -mt-2">{error}</p>}
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 px-8 py-4 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25 flex items-center justify-center space-x-2"
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 px-8 py-4 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25 flex items-center justify-center space-x-2 disabled:opacity-60"
                 >
-                  <span>Envoyer ma demande</span>
+                  <span>{isSubmitting ? 'Envoi…' : 'Envoyer ma demande'}</span>
                   <Send size={20} />
                 </button>
               </form>
