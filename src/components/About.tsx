@@ -31,7 +31,7 @@ const About = () => {
 
               <p>
                 Aujourd'hui, j'allie cette expérience de vie riche à ma passion créative. 
-                <span className="text-blue-400 font-medium">Mon approche unique combine</span> 
+                <span className="text-blue-400 font-medium"> Mon approche unique combine </span> 
                 l'art traditionnel sur tablette graphique (Procreate) et l'intelligence artificielle 
                 pour créer des identités visuelles authentiques et innovantes.
               </p>
@@ -54,13 +54,13 @@ const About = () => {
               <div className="feature-card">
                 <User className="text-purple-400 mb-3" size={24} />
                 <h3 className="font-semibold mb-2">Approche personnalisée</h3>
-                <p className="text-sm text-gray-400">Chaque création est unique et adaptée à votre vision</p>
+                <p className="text-sm text-gray-400"> Chaque création est unique et adaptée à votre vision </p>
               </div>
 
               <div className="feature-card-blue">
                 <Zap className="text-blue-400 mb-3" size={24} />
                 <h3 className="font-semibold mb-2">Technologie hybride</h3>
-                <p className="text-sm text-gray-400">Procreate + IA pour un rendu optimal</p>
+                <p className="text-sm text-gray-400"> Procreate + IA pour un rendu optimal </p>
               </div>
 
               <div className="feature-card-cyan">

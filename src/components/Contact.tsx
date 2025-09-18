@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react';
+import emailjs from "@emailjs/browser";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,12 +13,31 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simuler l'envoi du formulaire
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
+
+    emailjs.send(
+      import.meta.env.VITE_EMAILJS_SERVICE_ID!,
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID!,
+      {
+        name: formData.name,
+        email: formData.email,       // pour le Reply-To
+        title: formData.service,     // correspond à {{title}} dans ton template
+        message: formData.message,
+      },
+      import.meta.env.VITE_EMAILJS_PUBLIC_KEY!
+    )
+    .then(() => {
+      setIsSubmitted(true);
+      setTimeout(() => setIsSubmitted(false), 3000);
+    })
+    .catch((err) => {
+      console.error("Erreur EmailJS :", err);
+      alert("Une erreur est survenue, merci de réessayer.");
+    });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -43,6 +63,7 @@ const Contact = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          {/* Infos contact */}
           <div className="space-y-8">
             <div>
               <h3 className="text-2xl font-bold mb-6 text-white">Informations de contact</h3>
@@ -53,7 +74,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <div className="text-gray-300">Email</div>
-                    <div className="text-white font-medium">ljutvi.creative@gmail.com</div>
+                    <div className="text-white font-medium">ljutviharry@gmail.com</div>
                   </div>
                 </div>
 
@@ -102,6 +123,7 @@ const Contact = () => {
             </div>
           </div>
 
+          {/* Formulaire */}
           <div className="bg-gray-800/50 backdrop-blur border border-gray-700/50 rounded-3xl p-8">
             <h3 className="text-2xl font-bold mb-6 text-white">Demander un devis</h3>
             
